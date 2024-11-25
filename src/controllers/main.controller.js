@@ -33,20 +33,18 @@ async function authSteamReturn(req, res, next) {
     }
 }
 
+async function authLocal(req, res) {
+    res.redirect('/');
+}
+
 async function destroySession(req, res) {
-    Logger.sql.debug(`User logged out - ${JSON.stringify(req.user.displayName)}`)
+    Logger.sql.debug(`User logged out - ${JSON.stringify(req.user.id)}`)
     req.session.destroy(err => {
         res.redirect('/')
     })
 }
 
 async function deleteAccount(req, res) {
-    const steamid = req.session.passport.user.id
-    const DBTables = require('../utils/startup').DBTables
-
-    DBTables.forEach(table => {
-        db.deleteUserAccount(table, steamid)
-    })
 
     req.session.destroy(err => {
         res.redirect('/')
@@ -56,6 +54,7 @@ async function deleteAccount(req, res) {
 module.exports = {
   index,
   authSteam,
+  authLocal,
   authSteamReturn,
   destroySession,
   deleteAccount

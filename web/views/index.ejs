@@ -67,8 +67,7 @@
                 <% } else { %>
                     <div class="nav-item dropdown" data-bs-theme="dark">
                         <div class="profile-bg rounded p-1 px-2 d-flex align-items-center dropdown-toggle" role="button" data-bs-toggle="dropdown">
-                            <p class="m-0 me-2"><small><%= user.displayName %></small></p>
-                            <img src="<%= user.photos[1].value%>" alt="" height="30" class="rounded-pill">
+                            <p class="m-0 me-2"><small><%= user.id %></small></p>
                         </div>
                             <ul class="dropdown-menu">
                                 
@@ -84,6 +83,18 @@
 
     <% if (typeof user == 'undefined') { %>
         <h5 class="text-center mt-4 text-white"><%= lang.needLogin %> <a class="text-warning" href="api/auth/steam"><%= lang.viaSteam %></a></h5>
+        <form action="/login" method="POST">
+            <div class="d-flex justify-content-center">
+                <div class="form-group">
+                    <label for="id">id:</label>
+                    <input type="text" id="id" name="id" required>
+                </div>
+            </div>
+            <input type="hidden" id="password" name="password" value="default">
+            <div class="d-flex justify-content-center">
+                <button type="submit" class="btn btn-primary">Submit</button>
+            </div>
+        </form>
     <% } else { %>
 
     <div class="container text-light mt-3">

@@ -6,8 +6,7 @@ const { startup } = require('./src/utils/startup')
 
 const path = require('path')
 const passport = require('passport')
-const passportSteam = require('passport-steam')
-const SteamStrategy = passportSteam.Strategy
+const LocalStrategy = require('passport-local').Strategy;
 const session = require('express-session')
 const MySQLStore = require('express-mysql-session')(session);
 
@@ -17,15 +16,6 @@ const config = require('./config.json')
 const app = express();
 const port = config.PORT || 27275;
 
-let returnURL = `${config.PROTOCOL}://${config.HOST}/api/auth/steam/return`
-let realm = `${config.PROTOCOL}://${config.HOST}/`
-
-if (config.HOST == 'localhost' || config.HOST == '127.0.0.1') {
-    returnURL = `${config.PROTOCOL}://${config.HOST}:${config.PORT}/api/auth/steam/return`
-    realm = `${config.PROTOCOL}://${config.HOST}:${config.PORT}/`
-    
-    Logger.core.trace(`'localhost/127.0.0.1' at config detected, *returnURL* and *realm* changed to have port in it`)
-}
 
 // Required to get data from user for sessions
 passport.serializeUser((user, done) => {
@@ -35,17 +25,19 @@ passport.deserializeUser((user, done) => {
     done(null, user);
 });
 // Initiate Strategy
-passport.use(new SteamStrategy({
-    returnURL: returnURL,
-    realm: realm,
-    apiKey: config.STEAMAPIKEY,
-}, function (identifier, profile, done) {
-    process.nextTick(function () {
-        profile.identifier = identifier;
-        return done(null, profile);
-    });
-}
-));
+
+passport.use(new LocalStrategy(
+    {
+      usernameField: 'id',
+      passwordField: 'password', // useless
+      passReqToCallback: true
+    },
+    (req, username, password, done) => {
+      Logger.core.info(`Steam ID: ${username} is being authenticated`)
+      const user = { id: username, username: username };
+      return done(null, user);
+    }
+  ));
 
 const sessionStore = new MySQLStore(config.DB);
 app.use(session({
